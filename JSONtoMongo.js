@@ -7,11 +7,26 @@ var fs = require('fs'),
     mongoose = require('mongoose'), 
     Schema = mongoose.Schema, 
     Listing = require('./ListingSchema.js'), 
-    config = require('./config');
+    config = require('./config.js');
+
+  var ParsedData;
 
 /* Connect to your database using mongoose - remember to keep your key secret*/
 //see https://mongoosejs.com/docs/connections.html
 //See https://docs.atlas.mongodb.com/driver-connection/
+mongoose.connect(config.db.uri, function(err){
+  if (err) throw err;
+  console.log('successfully connected');
+});
+fs.readFile('listings.json', 'utf8', function(err, data) {
+  if (err) return err;
+  ParsedData = JSON.parse(data);
+  ParsedData.entries.forEach(function(element) {
+    new Listing(element).save();
+  });
+});
+
+//name, code, coordinates, address
 
 /* 
   Instantiate a mongoose model for each listing object in the JSON file, 
